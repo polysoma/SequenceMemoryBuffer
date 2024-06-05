@@ -10,15 +10,15 @@ public class SequenceMemoryBuffer<T>
     const int MinimumCapacity = 256;
     private const int MaximumBlockSize = 24;
 
-    private class ByteBufferSequenceSegment : ReadOnlySequenceSegment<T>
+    private class MemoryBufferSequenceSegment : ReadOnlySequenceSegment<T>
     {
-        public ByteBufferSequenceSegment(in T[] buffer, in long offset)
+        public MemoryBufferSequenceSegment(in T[] buffer, in long offset)
         {
             Memory = new Memory<T>(buffer, 0, buffer.Length);
             RunningIndex = offset;
         }
 
-        public void SetNextSegment(ByteBufferSequenceSegment next)
+        public void SetNextSegment(MemoryBufferSequenceSegment next)
         {
             Next = next;
         }
@@ -245,7 +245,7 @@ public class SequenceMemoryBuffer<T>
             var lastIndex = _blockIndex;
             var lastUsed = _aryPosition;
 
-            var startSegment = new ByteBufferSequenceSegment(_blocks[0], 0);
+            var startSegment = new MemoryBufferSequenceSegment(_blocks[0], 0);
             if (lastIndex < 1)
             {
                 return new ReadOnlySequence<T>(startSegment, 0, startSegment, lastUsed);
@@ -256,7 +256,7 @@ public class SequenceMemoryBuffer<T>
             for (var idx = 1; idx <= lastIndex; ++idx)
             {
                 ref readonly var buff = ref _blocks[idx];
-                var newSegment = new ByteBufferSequenceSegment(buff, offset);
+                var newSegment = new MemoryBufferSequenceSegment(buff, offset);
                 prevSegment.SetNextSegment(newSegment);
                 offset += buff.Length;
                 prevSegment = newSegment;
